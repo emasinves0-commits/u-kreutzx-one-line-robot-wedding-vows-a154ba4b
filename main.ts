@@ -1,20 +1,22 @@
-// One-Line Robot Wedding Vows — make.fun entry.
-// Writes a single line of wedding vows for a robot couple to /output/entry.txt.
-// The vow must stay within the 160-character gate and carry the promise
-// (in sickness and in health) plus the machine-specific turn (restore from backup).
+// Robot wedding vow generator: emits one line of vows to /output/entry.txt.
 import { mkdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
 
-const VOW =
+const OUT_DIR = "/output";
+const OUT_FILE = `${OUT_DIR}/entry.txt`;
+
+const vow =
   "In sickness and in health, in firmware updates and factory resets, I will always restore you from backup.";
 
-// The sealed gate accepts 1 to 160 characters; refuse to write an invalid vow.
-const MAX_CHARS = 160;
-if (VOW.length < 1 || VOW.length > MAX_CHARS) {
-  throw new Error(`Vow is ${VOW.length} characters; the gate allows 1 to ${MAX_CHARS}.`);
+// Guard: the contest accepts between 1 and 160 characters.
+if (vow.length < 1 || vow.length > 160) {
+  throw new Error(`vow length ${vow.length} is outside the allowed 1-160 range`);
 }
 
-const OUTPUT_PATH = join(process.cwd(), "output", "entry.txt");
+// Guard: the entry must be a single line, so reject any line break.
+if (/[\r\n]/.test(vow)) {
+  throw new Error("vow must be a single line");
+}
 
-mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
-writeFileSync(OUTPUT_PATH, VOW, "utf8");
+mkdirSync(OUT_DIR, { recursive: true });
+// No trailing newline: the file contains exactly the vow.
+writeFileSync(OUT_FILE, vow, "utf8");
